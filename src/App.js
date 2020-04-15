@@ -5,13 +5,17 @@ import React, { Component } from 'react';
 class App extends Component {
   constructor() {
     super()
+    this.change = this.change.bind(this)
+    this.addTask = this.addTask.bind(this)
+    this.updateDone = this.updateDone.bind(this)
     this.state = {
       tasks: [
         { id: 1, name: "Sacar la ropa", done: false },
         { id: 2, name: "Hacer la cama", done: true },
         { id: 3, name: "Leer un rato", done: false }
       ],
-      newTask: ''
+      newTask: '',
+      blank: false
     }
   }
   render() {
@@ -20,14 +24,52 @@ class App extends Component {
         <div className="list">
           <h3>Por hacer:</h3>
           <ul className="todo">
-            {this.state.tasks.map((task, index) => <li key={task.id}>{task.name}</li>)}
+            {this.state.tasks.map((task, index) =>
+              <li key={task.id} className={task.done == true ? 'done': null} onClick={() => this.updateDone(task.id)}>{task.name}</li>
+            )}
           </ul>
-          <form>
-            <input type="text" id="new-task" placeholder="Ingresa una tarea y oprime Enter" value={this.state.newTask} />
+          <form onSubmit={this.addTask}>
+            <input type="text" id="new-task" className={this.state.blank ? 'error' : null} onChange={this.change} placeholder="Ingresa una tarea y oprime Enter" value={this.state.newTask} />
           </form>
         </div>
       </div>
     )
+  }
+
+  addTask(event){
+    event.preventDefault();
+    if (this.state.newTask == '')
+      this.setState({
+        blank: true
+      });
+    else
+      this.setState({
+        tasks: this.state.tasks.concat({id: this.state.tasks.length + 1, name: this.state.newTask, done: false}),
+        newTask: '',
+        blank: false
+      });
+  }
+
+  change(event){
+    this.setState({
+      newTask: event.target.value
+    })
+  }
+
+  updateDone(taskId){
+    var tasks2 = this.state.tasks
+    var dones=false;
+    if (tasks2[taskId-1].done === false){
+      dones=true;
+    }
+    else{
+      dones=false
+    }
+    tasks2[taskId-1]={id:tasks2[taskId-1].id ,name:tasks2[taskId-1].name,done: dones}
+
+    this.setState({
+      tasks: tasks2
+    })
   }
 }
 
